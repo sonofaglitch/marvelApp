@@ -23,11 +23,15 @@ console.log('Finding a random comic from between ' + dateString1 + ' & ' + dateS
 var call = url+"?&limit=100&dateRange="+dateString1+","+dateString2+credentials;
 
 const app = document.getElementById('root');
-const doc = document;
+const logo = document.createElement('img');
+logo.src = 'logo.png';
 
-app.appendChild(htmlGen.createLogoElement(doc));
-const container = htmlGen.createContainer(doc);
+const container = document.createElement('div');
+container.class='container';
+
+app.appendChild(logo);
 app.appendChild(container);
+
 
 //Http request
 var request = new XMLHttpRequest();
@@ -67,38 +71,34 @@ request.onload = function(){
   //create a <p> and set the textContent to the print issue date
   const printIssueDate = document.createElement('p');
 
-  container.appendChild(card);
-  card.appendChild(image);
-  card.appendChild(title);
-  card.appendChild(description);
-
   var saleDate;
   var digitalPurchaseDate;
-
-  randomComic.dates.forEach (result => {
-      if (result['type'] == 'onsaleDate'){
-          saleDate = result['date'];
-      }
-      else if (result['type'] == 'digitalPurchaseDate'){
-          digitalPurchaseDate = result['date'];
-      };
-  });
 
   //If digitalPurchaseDate Present...
   if ('digitalPurchaseDate' in randomComic.dates){
     console.log('Found a digital purchase date');
-    const digitalIssueDateElement = document.createElement('p');
-    var digitalDateString = digitalPurchaseDate.substr(8,2) + " " + digitalPurchaseDate.substr(5,2) + " " + digitalPurchaseDate.substr(0,4);
-    digitalIssueDateElement.textContent = "<strong>Digital Date:</strong> " + digitalDateString;
-    card.appendChild(digitalIssueDate);
+    const digitalIssueDate = document.createElement('p');
   };
 
-  var saleDateString = saleDate.substr(8,2) + " " + saleDate.substr(5,2) + " " + saleDate.substr(0,4) ;
-
+  randomComic.dates.forEach (result => {
+      if (result['type'] == 'onsaleDate'){
+          saleDate = result['date'];
+          var saleDateString = saleDate.substr(8,2) + " " + saleDate.substr(5,2) + " " + saleDate.substr(0,4) ;
+      }
+      else if (result['type'] == 'digitalPurchaseDate'){
+          digitalPurchaseDate = result['date'];
+          var digitalDateString = digitalPurchaseDate.substr(8,2) + " " + digitalPurchaseDate.substr(5,2) + " " + digitalPurchaseDate.substr(0,4) ;
+      };
+  });
 
   printIssueDate.innerHTML = "<strong>Onsale Date:</strong> " + saleDateString;
+  digitalIssueDate.textContent = "<strong>Digital Date:</strong> " + digitalDateString;
+
+  container.appendChild(card);
+  card.appendChild(image);
+  card.appendChild(title);
+  card.appendChild(description);
   card.appendChild(printIssueDate);
-
-
+  card.appendChild(digitalIssueDate);
 };
 request.send();

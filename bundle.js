@@ -1,14 +1,23 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 var exports = module.exports = {};
 
-exports.setup = function(){
-  const app = document.getElementById('root');
-  const logo = document.createElement('img');
+exports.createLogoElement = function(aDocument){
+  console.log('Running createLogoElement');
+
+  var logo = aDocument.createElement('img');
   logo.src = 'logo.png';
 
+  return logo;
+};
+
+exports.createContainer = function(aDocument){
+  console.log('Running createContainerElement');
+
   const container = document.createElement('div');
-  container.class='container';  
-}
+  container.class='container';
+
+  return container;
+};
 
 },{}],2:[function(require,module,exports){
 var dates = require('./randomDates');
@@ -36,15 +45,11 @@ console.log('Finding a random comic from between ' + dateString1 + ' & ' + dateS
 var call = url+"?&limit=100&dateRange="+dateString1+","+dateString2+credentials;
 
 const app = document.getElementById('root');
-const logo = document.createElement('img');
-logo.src = 'logo.png';
+const doc = document;
 
-const container = document.createElement('div');
-container.class='container';
-
-app.appendChild(logo);
+app.appendChild(htmlGen.createLogoElement(doc));
+const container = htmlGen.createContainer(doc);
 app.appendChild(container);
-
 
 //Http request
 var request = new XMLHttpRequest();
@@ -83,23 +88,40 @@ request.onload = function(){
 
   //create a <p> and set the textContent to the print issue date
   const printIssueDate = document.createElement('p');
-  var saleDate;
-
-  randomComic.dates.forEach (result => {
-      if (result['type'] == 'onsaleDate'){
-          saleDate = result['date'];
-      };
-  });
-
-  var saleDateString = saleDate.substr(8,2) + " " + saleDate.substr(5,2) + " " + saleDate.substr(0,4) ;
-
-  printIssueDate.textContent = "Onsale Date: " + saleDateString;
 
   container.appendChild(card);
   card.appendChild(image);
   card.appendChild(title);
   card.appendChild(description);
+
+  var saleDate;
+  var digitalPurchaseDate;
+
+  randomComic.dates.forEach (result => {
+      if (result['type'] == 'onsaleDate'){
+          saleDate = result['date'];
+      }
+      else if (result['type'] == 'digitalPurchaseDate'){
+          digitalPurchaseDate = result['date'];
+      };
+  });
+
+  //If digitalPurchaseDate Present...
+  if ('digitalPurchaseDate' in randomComic.dates){
+    console.log('Found a digital purchase date');
+    const digitalIssueDateElement = document.createElement('p');
+    var digitalDateString = digitalPurchaseDate.substr(8,2) + " " + digitalPurchaseDate.substr(5,2) + " " + digitalPurchaseDate.substr(0,4);
+    digitalIssueDateElement.textContent = "<strong>Digital Date:</strong> " + digitalDateString;
+    card.appendChild(digitalIssueDate);
+  };
+
+  var saleDateString = saleDate.substr(8,2) + " " + saleDate.substr(5,2) + " " + saleDate.substr(0,4) ;
+
+
+  printIssueDate.innerHTML = "<strong>Onsale Date:</strong> " + saleDateString;
   card.appendChild(printIssueDate);
+
+
 };
 request.send();
 
