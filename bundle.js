@@ -19,12 +19,51 @@ exports.createContainer = function(aDocument){
   return container;
 };
 
+exports.createDatesElement = function(aDocument, card, comicsArray){
+  console.log('Running createDatesElement');
+
+  var onsaleDate;
+  var digitalPurchaseDate;
+  var randomComic = comicsArray;
+
+  randomComic.dates.forEach (result => {
+      if (result['type'] == 'onsaleDate'){
+          onsaleDate = result['date'];
+          //Create page element and set to display onSale Date
+          const onsaleDateElement = document.createElement('p');
+          var onsaleDateString = onsaleDate.substr(8,2) + " " + onsaleDate.substr(5,2) + " " + onsaleDate.substr(0,4);
+          onsaleDateElement.innerHTML = "<strong>Onsale Date:</strong> " + onsaleDateString;
+          card.appendChild(onsaleDateElement);
+      }
+      else if (result['type'] == 'digitalPurchaseDate'){
+          console.log('Found a digitalPurchaseDate:' + result['date']);
+          digitalPurchaseDate = result['date'];
+          //Create page element and set to display onSale Date
+          const digitalIssueDateElement = document.createElement('p');
+          var digitalDateString = digitalPurchaseDate.substr(8,2) + " " + digitalPurchaseDate.substr(5,2) + " " + digitalPurchaseDate.substr(0,4);
+          digitalIssueDateElement.innerHTML = "<strong>Digital Date:</strong> " + digitalDateString;
+          card.appendChild(digitalIssueDateElement);
+      };
+  });
+};
+
 },{}],2:[function(require,module,exports){
+//Marvel Time Machine Web App
+//Makes use of the MArvel API to randomly select one comic from their archives
+//and present cover art and key data
+
+
+//Imports
 var dates = require('./randomDates');
 var htmlGen = require('./htmlGenerator');
 var fs = require('fs');
-var marvelResponse = [];
-var randomComic;
+
+//Important variables
+var marvelResponse = []; //Stores the API response array
+var randomComic; // Stores the randomly selsected comic to be presented
+
+//API Endpoint
+const url = 'http://gateway.marvel.com/v1/public/comics';
 
 //API Credentials
 const publicKey = '7651919bd4d642048ee242960904a3ba';
@@ -32,24 +71,22 @@ var ts = 1541095973559;
 var hash = 'e061c2b8e18d57de9b62cd6919cac5a6'
 var credentials = "&apikey="+publicKey+"&ts="+ts+"&hash="+hash;
 
-//API Endpoint
-const url = 'http://gateway.marvel.com/v1/public/comics';
-
 var dateRange = dates.getMarvelDates();
 var dateString1 = dateRange[0].getFullYear() + "-" + (dateRange[0].getMonth()+1) + "-"+ dateRange[0].getDate();
 var dateString2 = dateRange[1].getFullYear() + "-" + (dateRange[1].getMonth()+1) + "-"+ dates.daysInMonth(dateRange[1].getMonth());
-console.log(dateString1);
-console.log(dateString2);
 console.log('Finding a random comic from between ' + dateString1 + ' & ' + dateString2 + ':');
 
+//Final API Call
 var call = url+"?&limit=100&dateRange="+dateString1+","+dateString2+credentials;
 
+
+//DOM Setup
 const app = document.getElementById('root');
 const doc = document;
-
 app.appendChild(htmlGen.createLogoElement(doc));
 const container = htmlGen.createContainer(doc);
 app.appendChild(container);
+
 
 //Http request
 var request = new XMLHttpRequest();
@@ -59,9 +96,9 @@ request.onload = function(){
   var data = JSON.parse(this.response);
   console.log(data);
 
-  data.data.results.forEach (result => {
-      console.log(result.title + " (ID:" + result.id + " )");
-  });
+  //data.data.results.forEach (result => {
+  //    console.log(result.title + " (ID:" + result.id + " )");
+  //});
 
 
   //Select one comic at random from those returned by API
@@ -94,33 +131,7 @@ request.onload = function(){
   card.appendChild(title);
   card.appendChild(description);
 
-  var saleDate;
-  var digitalPurchaseDate;
-
-  randomComic.dates.forEach (result => {
-      if (result['type'] == 'onsaleDate'){
-          saleDate = result['date'];
-      }
-      else if (result['type'] == 'digitalPurchaseDate'){
-          digitalPurchaseDate = result['date'];
-      };
-  });
-
-  //If digitalPurchaseDate Present...
-  if ('digitalPurchaseDate' in randomComic.dates){
-    console.log('Found a digital purchase date');
-    const digitalIssueDateElement = document.createElement('p');
-    var digitalDateString = digitalPurchaseDate.substr(8,2) + " " + digitalPurchaseDate.substr(5,2) + " " + digitalPurchaseDate.substr(0,4);
-    digitalIssueDateElement.textContent = "<strong>Digital Date:</strong> " + digitalDateString;
-    card.appendChild(digitalIssueDate);
-  };
-
-  var saleDateString = saleDate.substr(8,2) + " " + saleDate.substr(5,2) + " " + saleDate.substr(0,4) ;
-
-
-  printIssueDate.innerHTML = "<strong>Onsale Date:</strong> " + saleDateString;
-  card.appendChild(printIssueDate);
-
+  htmlGen.createDatesElement(document, card, randomComic);
 
 };
 request.send();
