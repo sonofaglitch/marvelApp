@@ -1,0 +1,75 @@
+@font-face
+{
+    font-family: League-Gothic;
+    src: url("/LeagueGothic-Regular.otf");
+}
+
+body{
+  background-color: white;
+  font-family: 'League-Gothic',sans-serif;
+  font-size: 24px;
+}
+
+.headers{
+  box-sizing: border-box;
+  display: inline;
+  height: 100%;
+  width: 25%;
+}
+
+ul{
+  box-sizing: border-box;
+  background-color: black;
+  list-style-type: none;
+  padding: 1%;
+  overflow: hidden;
+}
+
+ul h1{
+  color: white;
+  padding: 0;
+  padding-left: 30px;;
+  display: inline;
+  font-weight: lighter;
+  line-height: 50px;
+  vertical-align: middle;
+}
+
+ul h2{
+  color: white;
+  vertical-align: bottom;
+  padding: 0 20px;
+  padding-bottom: 50px;
+  display: inline;
+  font-family: sans-serif;
+  font-size: 16px;
+  font-weight: lighter;
+  font-style: italic;
+  line-height: 60px;
+}
+
+ul img{
+  height: 20%;
+  padding: 5px 15px;
+  display: inline;
+  vertical-align: middle;
+}
+
+li{
+  float: right;
+  margin: 0 20px;
+}
+
+li a{
+  color: white;
+  background-color: black;
+  display: block;
+  border: none;
+  padding: none;
+  padding: 20px 8px;
+  text-decoration: none;
+}
+
+li a:hover{
+  color: red;
+}
